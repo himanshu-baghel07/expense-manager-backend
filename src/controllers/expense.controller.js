@@ -66,4 +66,44 @@ const getExpenses = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, expenses, "Expenses retrieved successfully"))
 })
 
-export { createExpense, getExpenses }
+const updateExpense = asyncHandler(async (req, res) => {
+
+    const { expenseId } = req.params
+    const { title, amount, description, category, date } = req.body
+    const user = req.user;
+
+    const expense = await Expense.findOne({
+        _id: expenseId,
+        user: req.user._id
+    })
+    console.log("User making the request: ", user);
+    console.log("Expense ID from params: ", expenseId);
+
+    if (!expense) {
+        throw new ApiError(404, "Expense not found or unauthorized access")
+    }
+
+
+    if ([title, amount, category].some((field) => field?.trim === '')) {
+        throw new ApiError(404, "title,amount,category, is required")
+    }
+
+    if (isNaN(amount) || amount < 0) {
+        throw new ApiError(400, "Amount should be a positive number");
+    }
+
+    expense.title = title || expense.title
+    expense.amount = parseFloat(amount) || expense.amount
+    expense.description = description || expense.description
+    expense.category = category || expense.category
+    expense.date = date || expense.date
+
+    const updatedExpense = await expense.save()
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, "Expense updated successfully"))
+
+})
+
+export { createExpense, getExpenses, updateExpense }

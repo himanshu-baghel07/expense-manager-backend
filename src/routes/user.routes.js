@@ -2,7 +2,7 @@ import { Router } from "express";
 import { loginUser, logoutUser, refreshAccessToken, registerUser } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { createExpense, getExpenses } from "../controllers/expense.controller.js";
+import { createExpense, getExpenses, updateExpense } from "../controllers/expense.controller.js";
 
 const router = Router();
 
@@ -30,5 +30,7 @@ router.route("/refresh-token").post(refreshAccessToken)
 router.route("/create-expense").post(verifyJWT, createExpense);
 
 router.route("/get-expenses").post(verifyJWT, getExpenses);
+
+router.route("/update-expense/:expenseId").post(verifyJWT, updateExpense);
 
 export default router;
