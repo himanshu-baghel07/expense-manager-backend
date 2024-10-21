@@ -4,8 +4,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudnary.js";
 import jwt from "jsonwebtoken";
-// import * as CryptoJS from "crypto-js";
-import CryptoJS from "crypto-js";
+
+import { decryptPayload } from "../utils/DecryptMethod.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -24,39 +24,21 @@ const generateAccessAndRefreshTokens = async (userId) => {
     );
   }
 };
-const decryptPayload = (encryptedPayload) => {
-  console.log("Step1", encryptedPayload);
-  const bytes = CryptoJS.AES.decrypt(encryptedPayload, "hello0");
-  console.log("Its decrypting");
-  const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-  console.log("before parse", decryptedData);
-  return JSON.parse(decryptedData); // Parse back to original request body
-};
 
 const registerUser = asyncHandler(async (req, res) => {
-  console.log("Request body:", req.body);
-  console.log("Request files:", req.files);
-  console.log("Request body:", req.body.encryptedRequestBody);
-
   if (!req.body.encryptedRequestBody) {
     throw new ApiError(400, "Encrypted data is missing");
   }
-
   const decryptedRequestBody = decryptPayload(req.body.encryptedRequestBody);
-  console.log("Decrypted data:", decryptedRequestBody);
-
   const { fullName, email, username, password } = decryptedRequestBody;
-
   if (
     [fullName, email, username, password].some((field) => field?.trim() === "")
   ) {
     throw new ApiError(400, "All field are required");
   }
-
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
-
   if (existedUser) {
     throw new ApiError(409, "User with email or username already exists");
   }
@@ -81,8 +63,6 @@ const registerUser = asyncHandler(async (req, res) => {
 
   const user = await User.create({
     fullName,
-    // avatar: avatar.url,
-    // coverImage: coverImage?.url || "",
     email,
     password,
     username: username.toLowerCase(),

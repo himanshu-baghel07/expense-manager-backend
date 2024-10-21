@@ -10,6 +10,7 @@ import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createExpense,
+  getChartData,
   getExpenses,
   updateExpense,
 } from "../controllers/expense.controller.js";
@@ -44,5 +45,6 @@ router.route("/create-expense").post(verifyJWT, createExpense);
 router.route("/get-expenses").post(verifyJWT, getExpenses);
 
 router.route("/update-expense/:expenseId").post(verifyJWT, updateExpense);
+router.route("/get-chart-data").post(verifyJWT, getChartData);
 
 export default router;
