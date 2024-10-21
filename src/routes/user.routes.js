@@ -42,7 +42,7 @@ router.route("/refresh-token").post(refreshAccessToken);
 
 router.route("/create-expense").post(verifyJWT, createExpense);
 
-router.route("/get-expenses").post(verifyJWT, getExpenses);
+router.route("/get-expenses").get(verifyJWT, getExpenses);
 
 router.route("/update-expense/:expenseId").post(verifyJWT, updateExpense);
 router.route("/get-chart-data").post(verifyJWT, getChartData);
